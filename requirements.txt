@@ -1,0 +1,22 @@
+# Web & API
+fastapi
+uvicorn
+
+# Data Manipulation & Analysis
+pandas
+numpy
+matplotlib
+seaborn
+
+# Machine Learning & Modeling
+scikit-learn
+xgboost
+lightgbm
+imbalanced-learn
+flaml
+shap
+
+# Utilities & Integration
+openai
+python-dotenv
+joblib
