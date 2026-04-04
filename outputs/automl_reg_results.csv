@@ -1,0 +1,2 @@
+Model,Best Config,Best Loss,R2 Score
+xgb_limitdepth,"{'n_estimators': 2513, 'max_depth': 7, 'min_child_weight': np.float64(0.17675698507428292), 'learning_rate': np.float64(0.07204499906282893), 'subsample': np.float64(0.9615494727877897), 'colsample_bylevel': np.float64(0.9289563581035897), 'colsample_bytree': 1.0, 'reg_alpha': np.float64(0.01044892965208733), 'reg_lambda': np.float64(1.48161217995139)}",3.9361425730272557,0.5394582195291593

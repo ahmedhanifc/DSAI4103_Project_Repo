@@ -1,0 +1,2 @@
+Model,Best Config,Best Accuracy
+xgboost,"{'n_estimators': 1341, 'max_leaves': 24, 'min_child_weight': np.float64(2.295604945618853), 'learning_rate': np.float64(0.10274598978173108), 'subsample': np.float64(0.8894590090312318), 'colsample_bylevel': 1.0, 'colsample_bytree': np.float64(0.9472793968800469), 'reg_alpha': np.float64(0.05472800965266363), 'reg_lambda': np.float64(0.11894526523396565)}",0.7866372221622462
