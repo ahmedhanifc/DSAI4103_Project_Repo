@@ -1,17 +1,18 @@
-import os                                                                                 
+import os
 import asyncio
-from contextlib import asynccontextmanager                                                
-from fastapi import FastAPI                                                               
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
 import pandas as pd
-import json                                                                               
-import joblib                                                                           
+import json
+import joblib
+import requests
 from openai import OpenAI
 from dotenv import load_dotenv                                                            
 
-INTERVAL_SECONDS = 10  # change this to control frequency                                 
-                                                                                        
-predictions_store = []                                                                    
-model = scaler = col_stats = model_numerical_columns = client = None                    
+INTERVAL_SECONDS = 10  # change this to control frequency
+
+predictions_store = []
+model = scaler = col_stats = model_numerical_columns = client = powerbi_push_url = None                    
                                                                                         
 
 def load_package(filepath):                                                               
@@ -20,12 +21,25 @@ def load_package(filepath):
 def setup():
     load_dotenv()
     api_key = os.environ.get("OPENAI_API_KEY")
-    if api_key and api_key != "YOUR_KEY_HERE":                                            
+    if api_key and api_key != "YOUR_KEY_HERE":
         print("API key loaded")
-        return OpenAI()                                                                   
-    else:                                                                               
-        print("API key not found - check your .env file")                                 
-        return None                                                                       
+        return OpenAI()
+    else:
+        print("API key not found - check your .env file")
+        return None
+
+def push_to_powerbi(result: dict):
+    url = powerbi_push_url
+    # print(f"Pushing to Power BI: {result}")
+    print("url:", url)
+    if not url:
+        return
+    payload = [{"probability": result["probability"], "prediction": result["prediction"], "timestamp": result["timestamp"]}]
+    try:
+        print("Result pushed to Power BI")
+        requests.post(url, json=payload, timeout=5)
+    except Exception as e:
+        print(f"Power BI push error: {e}")                                                                       
 
 def build_column_stats(X: pd.DataFrame) -> dict:                                          
     stats = {}                                                                          
@@ -83,11 +97,11 @@ def score_row(raw_row: dict) -> dict:
 async def prediction_loop():                                                              
     while True:                                                                         
         try:
-            raw_row = await asyncio.to_thread(llm_generate_row, client, "gpt-4o-mini",
-col_stats)                                                                                
+            raw_row = await asyncio.to_thread(llm_generate_row, client, "gpt-4o-mini", col_stats)
             result = score_row(raw_row)
-            predictions_store.append(result)                                              
-            print(f"[{result['timestamp']}] prediction={result['prediction']} | proba={result['probability']:.4f}")                                                       
+            predictions_store.append(result)
+            print(f"[{result['timestamp']}] prediction={result['prediction']} | proba={result['probability']:.4f}")
+            await asyncio.to_thread(push_to_powerbi, result)
         except Exception as e:
             print(f"Error: {e}")                                                          
         await asyncio.sleep(INTERVAL_SECONDS)                                           
@@ -95,7 +109,8 @@ col_stats)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global model, scaler, col_stats, model_numerical_columns, client                      
+    global model, scaler, col_stats, model_numerical_columns, client, powerbi_push_url
+    powerbi_push_url = "https://api.powerbi.com/beta/b30f4b44-46c6-4070-9997-f87b38d4771c/datasets/aef9e3f0-5298-4f8a-95f1-ba9402ffa658/rows?experience=power-bi&key=m%2BrWSkLlF0vEIZc7Gxi4y7QEjU3Po%2B18VK4UZGVakd6bdJya2bqCf88B84LUK3mR6%2B7uhuyW1cj8cDSfT2Zz%2Fw%3D%3D"                    
     client = setup()
     model = load_package("./outputs/final_xgb_model.pkl")                                 
     scaler = load_package("./outputs/full_data_scaler.pkl")                             
