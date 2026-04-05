@@ -7,4 +7,7 @@ The API (api.py) is a FastAPI server that operationalises the model in real-time
 ## How to Run
 
 Running the Scoring Script
+- activate your conda environment
+- pip install -r requirements.txt
+- add api key in .env -- see .env.example for variable names.
 - uvicorn api:app --reload 
