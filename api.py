@@ -221,7 +221,7 @@ async def lifespan(app: FastAPI):
     global model, scaler, col_stats, model_numerical_columns, client, powerbi_push_url, predictions_store
     predictions_store = load_history()
     print(f"Loaded {len(predictions_store)} predictions from history.")
-    powerbi_push_url = "https://api.powerbi.com/beta/b30f4b44-46c6-4070-9997-f87b38d4771c/datasets/5049ef98-cf5d-4a5c-bbc5-acccb7e01307/rows?experience=power-bi&key=iDC3ZzvouOPQkZAb659bxrUEbawiUz8ELqUNhQtTqgXTwbqzs1IMtYr8Bdk8%2F00HGGiw0ZKzQvL2Ot0ryz%2FhiA%3D%3D"                    
+    powerbi_push_url = os.environ.get("POWERBI_PUSH_URL")                  
     client = setup()
     model = load_package("./outputs/final_xgb_model.pkl")                                 
     scaler = load_package("./outputs/full_data_scaler.pkl")                             
